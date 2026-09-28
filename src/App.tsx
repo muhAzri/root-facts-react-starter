@@ -42,16 +42,17 @@ function App() {
 
     (async () => {
       try {
-        await Promise.all([
-          detector.loadModel((percent) => {
-            progress.detector = percent;
-            reportProgress();
-          }),
-          generator.loadModel((percent) => {
-            progress.generator = percent;
-            reportProgress();
-          })
-        ]);
+        await detector.loadModel((percent) => {
+          progress.detector = percent;
+          reportProgress();
+        });
+
+        if (cancelled) return;
+
+        await generator.loadModel((percent) => {
+          progress.generator = percent;
+          reportProgress();
+        });
 
         if (!cancelled) {
           actions.setModelStatus('Model AI Siap');
