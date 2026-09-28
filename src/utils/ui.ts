@@ -1,4 +1,6 @@
-export const commonStyles = {
+import type { CSSProperties } from 'react';
+
+export const commonStyles: Record<string, CSSProperties> = {
   errorContainer: {
     marginTop: '1rem',
     padding: '0.75rem',
@@ -59,19 +61,19 @@ export const commonStyles = {
 };
 
 /* ===== Confidence Theme ===== */
-export const getConfidenceTheme = (confidence) => {
+export const getConfidenceTheme = (confidence: number): 'theme-green' | 'theme-yellow' | 'theme-red' => {
   if (confidence >= 80) return 'theme-green';
   if (confidence >= 60) return 'theme-yellow';
   return 'theme-red';
 };
 
-export const getConfidenceTextClass = (confidence) => {
+export const getConfidenceTextClass = (confidence: number): 'text-green' | 'text-yellow' | 'text-red' => {
   if (confidence >= 80) return 'text-green';
   if (confidence >= 60) return 'text-yellow';
   return 'text-red';
 };
 
-export const createProgressBarStyle = (percentage, duration = '1s') => ({
+export const createProgressBarStyle = (percentage: number, duration = '1s'): CSSProperties => ({
   width: `${percentage}%`,
   transition: `width ${duration} ease-out`
 });

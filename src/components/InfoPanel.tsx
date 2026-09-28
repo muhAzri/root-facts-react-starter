@@ -1,6 +1,15 @@
 import { Sparkles, Search, CheckCircle, Lightbulb, Copy, Share2 } from 'lucide-react';
+import type { AppStateName, DetectionResult, FunFactData } from '../types';
 
-function InfoPanel({ appState, detectionResult, funFactData, error, onCopyFact }) {
+interface InfoPanelProps {
+  appState: AppStateName;
+  detectionResult: DetectionResult | null;
+  funFactData: FunFactData;
+  error: string | null;
+  onCopyFact?: () => void;
+}
+
+function InfoPanel({ appState, detectionResult, funFactData, error, onCopyFact }: InfoPanelProps) {
   const isIdle = appState === 'idle';
   const isAnalyzing = appState === 'analyzing';
   const isResult = appState === 'result';
@@ -50,9 +59,9 @@ function InfoPanel({ appState, detectionResult, funFactData, error, onCopyFact }
 
       if (funFactData === 'error') {
         return (
-          <div style={{ 
-            padding: '0.75rem', 
-            background: '#fef3c7', 
+          <div style={{
+            padding: '0.75rem',
+            background: '#fef3c7',
             borderRadius: 'var(--radius-sm)',
             fontSize: '0.875rem',
             color: '#92400e'
@@ -96,9 +105,9 @@ function InfoPanel({ appState, detectionResult, funFactData, error, onCopyFact }
         <div className="confidence-bar">
           <span className="confidence-label">Kepercayaan</span>
           <div className="confidence-track">
-            <div 
+            <div
               id="confidence-fill"
-              className="confidence-fill" 
+              className="confidence-fill"
               style={{ width: `${confidence}%` }}
             ></div>
           </div>

@@ -1,6 +1,18 @@
 import { useState, useRef, useEffect } from 'react';
 import { Camera, Mic, ScanLine } from 'lucide-react';
 import { TONE_CONFIG } from '../utils/config';
+import type { AppServices } from '../hooks/useAppState';
+import type { CameraType, ToneValue } from '../types';
+
+interface CameraSectionProps {
+  isRunning: boolean;
+  onToggleCamera?: () => void;
+  onToneChange?: (tone: ToneValue) => void;
+  services: AppServices;
+  modelStatus: string;
+  error: string | null;
+  currentTone: ToneValue;
+}
 
 function CameraSection({
   isRunning,
@@ -10,11 +22,11 @@ function CameraSection({
   modelStatus,
   error,
   currentTone
-}) {
+}: CameraSectionProps) {
   const [fps, setFps] = useState(30);
-  const [cameraType, setCameraType] = useState('default');
-  const videoRef = useRef(null);
-  const canvasRef = useRef(null);
+  const [cameraType, setCameraType] = useState<CameraType>('default');
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
     if (services.camera) {
@@ -33,19 +45,19 @@ function CameraSection({
     }
   }, [fps, services.camera]);
 
-  const handleCameraChange = (newCameraType) => {
+  const handleCameraChange = (newCameraType: CameraType) => {
     setCameraType(newCameraType);
     if (services.camera && services.camera.isActive()) {
       services.camera.startCamera();
     }
   };
 
-  const handleFpsChange = (newFps) => {
+  const handleFpsChange = (newFps: string) => {
     setFps(Number(newFps));
   };
 
-  const handleToneChange = (e) => {
-    const newTone = e.target.value;
+  const handleToneChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const newTone = e.target.value as ToneValue;
     if (onToneChange) {
       onToneChange(newTone);
     }
@@ -67,7 +79,7 @@ function CameraSection({
             playsInline
             className={isRunning ? '' : 'hidden'}
           />
-          
+
           <canvas
             ref={canvasRef}
             id="media-canvas"
@@ -110,7 +122,7 @@ function CameraSection({
             <select
               id="camera-select"
               value={cameraType}
-              onChange={(e) => handleCameraChange(e.target.value)}
+              onChange={(e) => handleCameraChange(e.target.value as CameraType)}
               disabled={isRunning}
             >
               <option value="default">Belakang</option>
@@ -140,7 +152,7 @@ function CameraSection({
               onChange={handleToneChange}
               disabled={isRunning}
             >
-              {TONE_CONFIG.availableTones.map(option => (
+              {TONE_CONFIG.availableTones.map((option) => (
                 <option key={option.value} value={option.value}>
                   {option.label}
                 </option>

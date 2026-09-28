@@ -3,12 +3,13 @@ import Header from './components/Header';
 import CameraSection from './components/CameraSection';
 import InfoPanel from './components/InfoPanel';
 import { useAppState } from './hooks/useAppState';
+import type { ToneValue } from './types';
 
 function App() {
   const { state, actions } = useAppState();
-  const detectionCleanupRef = useRef(null);
+  const detectionCleanupRef = useRef<(() => void) | null>(null);
   const isRunningRef = useRef(false);
-  const [currentTone, setCurrentTone] = useState('normal');
+  const [currentTone, setCurrentTone] = useState<ToneValue>('normal');
 
   // TODO [Basic] Inisialisasi layanan deteksi, kamera, dan generator fakta saat aplikasi dimuat
 

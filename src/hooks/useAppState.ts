@@ -1,6 +1,26 @@
 import { useReducer, useMemo } from 'react';
+import type { CameraService } from '../services/CameraService';
+import type { DetectionService } from '../services/DetectionService';
+import type { RootFactsService } from '../services/RootFactsService';
+import type { AppStateName, DetectionResult, FunFactData } from '../types';
 
-const initialState = {
+export interface AppServices {
+  detector: DetectionService | null;
+  camera: CameraService | null;
+  generator: RootFactsService | null;
+}
+
+interface AppReducerState {
+  appState: AppStateName;
+  isRunning: boolean;
+  modelStatus: string;
+  detectionResult: DetectionResult | null;
+  funFactData: FunFactData;
+  error: string | null;
+  services: AppServices;
+}
+
+const initialState: AppReducerState = {
   appState: 'idle',
   isRunning: false,
   modelStatus: 'Memuat Model AI...',
@@ -23,9 +43,19 @@ const ActionTypes = {
   SET_FUN_FACT_DATA: 'SET_FUN_FACT_DATA',
   SET_ERROR: 'SET_ERROR',
   RESET_RESULTS: 'RESET_RESULTS',
-};
+} as const;
 
-function appReducer(state, action) {
+type AppAction =
+  | { type: typeof ActionTypes.SET_MODEL_STATUS; payload: string }
+  | { type: typeof ActionTypes.SET_SERVICES; payload: AppServices }
+  | { type: typeof ActionTypes.SET_RUNNING; payload: boolean }
+  | { type: typeof ActionTypes.SET_APP_STATE; payload: AppStateName }
+  | { type: typeof ActionTypes.SET_DETECTION_RESULT; payload: DetectionResult | null }
+  | { type: typeof ActionTypes.SET_FUN_FACT_DATA; payload: FunFactData }
+  | { type: typeof ActionTypes.SET_ERROR; payload: string | null }
+  | { type: typeof ActionTypes.RESET_RESULTS };
+
+function appReducer(state: AppReducerState, action: AppAction): AppReducerState {
   switch (action.type) {
   case ActionTypes.SET_MODEL_STATUS:
     return { ...state, modelStatus: action.payload };
@@ -67,25 +97,25 @@ export function useAppState() {
 
   const actions = useMemo(
     () => ({
-      setModelStatus: (status) =>
+      setModelStatus: (status: string) =>
         dispatch({ type: ActionTypes.SET_MODEL_STATUS, payload: status }),
 
-      setServices: (services) =>
+      setServices: (services: AppServices) =>
         dispatch({ type: ActionTypes.SET_SERVICES, payload: services }),
 
-      setRunning: (isRunning) =>
+      setRunning: (isRunning: boolean) =>
         dispatch({ type: ActionTypes.SET_RUNNING, payload: isRunning }),
 
-      setAppState: (appState) =>
+      setAppState: (appState: AppStateName) =>
         dispatch({ type: ActionTypes.SET_APP_STATE, payload: appState }),
 
-      setDetectionResult: (result) =>
+      setDetectionResult: (result: DetectionResult | null) =>
         dispatch({ type: ActionTypes.SET_DETECTION_RESULT, payload: result }),
 
-      setFunFactData: (data) =>
+      setFunFactData: (data: FunFactData) =>
         dispatch({ type: ActionTypes.SET_FUN_FACT_DATA, payload: data }),
 
-      setError: (error) =>
+      setError: (error: string | null) =>
         dispatch({ type: ActionTypes.SET_ERROR, payload: error }),
 
       resetResults: () =>
