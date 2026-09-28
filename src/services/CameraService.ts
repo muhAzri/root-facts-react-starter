@@ -1,14 +1,18 @@
+import type { CameraType } from '../types';
+
 export class CameraService {
   stream: MediaStream | null;
   video: HTMLVideoElement | null;
   canvas: HTMLCanvasElement | null;
   config: MediaTrackConstraints | null;
+  fps: number;
 
   constructor() {
     this.stream = null;
     this.video = null;
     this.canvas = null;
     this.config = null;
+    this.fps = 30;
   }
 
   setVideoElement(videoElement: HTMLVideoElement): void {
@@ -19,28 +23,73 @@ export class CameraService {
     this.canvas = canvasElement;
   }
 
-  // TODO [Basic] Tambahkan konfigurasi kamera untuk mendapatkan daftar perangkat input video
-  // TODO [Basic] Dapatkan constraints kamera berdasarkan konfigurasi dan kamera yang dipilih
   async loadCameras(): Promise<MediaDeviceInfo[]> {
-    return [];
+    this.config = {
+      width: { ideal: 640 },
+      height: { ideal: 480 }
+    };
+
+    if (!navigator.mediaDevices?.enumerateDevices) {
+      return [];
+    }
+
+    const devices = await navigator.mediaDevices.enumerateDevices();
+    return devices.filter((device) => device.kind === 'videoinput');
   }
 
-  // TODO [Basic] Memulai kamera dengan perangkat yang dipilih dan menampilkan pada elemen video
-  async startCamera(selectedCameraId?: string): Promise<void> {}
+  getConstraints(cameraType: CameraType = 'default'): MediaStreamConstraints {
+    return {
+      video: {
+        ...this.config,
+        facingMode: cameraType === 'front' ? 'user' : 'environment',
+        frameRate: { ideal: this.fps }
+      },
+      audio: false
+    };
+  }
 
-  // TODO [Basic] Menghentikan siaran kamera dan membersihkan sumber daya
-  stopCamera(): void {}
+  async startCamera(cameraType: CameraType = 'default'): Promise<void> {
+    this.stopCamera();
 
-  // TODO [Skilled] Implementasikan metode untuk mengatur FPS kamera
-  setFPS(fps: number): void {}
+    if (!this.config) {
+      await this.loadCameras();
+    }
 
-  // TODO [Basic] Periksa apakah kamera sedang aktif
+    const constraints = this.getConstraints(cameraType);
+    this.stream = await navigator.mediaDevices.getUserMedia(constraints);
+
+    if (this.video) {
+      this.video.srcObject = this.stream;
+      await this.video.play();
+    }
+  }
+
+  stopCamera(): void {
+    this.stream?.getTracks().forEach((track) => track.stop());
+    this.stream = null;
+
+    if (this.video) {
+      this.video.srcObject = null;
+    }
+  }
+
+  setFPS(fps: number): void {
+    this.fps = fps;
+
+    const [track] = this.stream?.getVideoTracks() ?? [];
+    if (track?.applyConstraints) {
+      track.applyConstraints({ frameRate: { ideal: fps } }).catch(() => {
+        // Sebagian perangkat/browser tidak mendukung penyesuaian frameRate secara langsung.
+        // FPS tetap dikendalikan lewat interval loop deteksi di sisi aplikasi.
+      });
+    }
+  }
+
   isActive(): boolean {
-    return false;
+    return Boolean(this.stream?.getVideoTracks().some((track) => track.readyState === 'live'));
   }
 
-  // TODO [Basic] Periksa apakah elemen video siap untuk digunakan
   isReady(): boolean {
-    return false;
+    return Boolean(this.video && this.video.readyState >= 2 && this.video.videoWidth > 0);
   }
 }

@@ -1,4 +1,4 @@
-import { Sparkles, Search, CheckCircle, Lightbulb, Copy, Share2 } from 'lucide-react';
+import { Sparkles, Search, CheckCircle, Lightbulb, Copy, Check, Share2 } from 'lucide-react';
 import type { AppStateName, DetectionResult, FunFactData } from '../types';
 
 interface InfoPanelProps {
@@ -7,9 +7,10 @@ interface InfoPanelProps {
   funFactData: FunFactData;
   error: string | null;
   onCopyFact?: () => void;
+  copied?: boolean;
 }
 
-function InfoPanel({ appState, detectionResult, funFactData, error, onCopyFact }: InfoPanelProps) {
+function InfoPanel({ appState, detectionResult, funFactData, error, onCopyFact, copied }: InfoPanelProps) {
   const isIdle = appState === 'idle';
   const isAnalyzing = appState === 'analyzing';
   const isResult = appState === 'result';
@@ -94,9 +95,9 @@ function InfoPanel({ appState, detectionResult, funFactData, error, onCopyFact }
                 id="btn-copy"
                 className="copy-btn"
                 onClick={onCopyFact}
-                title="Salin fakta"
+                title={copied ? 'Tersalin!' : 'Salin fakta'}
               >
-                <Copy size={18} />
+                {copied ? <Check size={18} /> : <Copy size={18} />}
               </button>
             )}
           </div>

@@ -6,7 +6,7 @@ import type { CameraType, ToneValue } from '../types';
 
 interface CameraSectionProps {
   isRunning: boolean;
-  onToggleCamera?: () => void;
+  onToggleCamera?: (cameraType: CameraType) => void;
   onToneChange?: (tone: ToneValue) => void;
   services: AppServices;
   modelStatus: string;
@@ -47,9 +47,6 @@ function CameraSection({
 
   const handleCameraChange = (newCameraType: CameraType) => {
     setCameraType(newCameraType);
-    if (services.camera && services.camera.isActive()) {
-      services.camera.startCamera();
-    }
   };
 
   const handleFpsChange = (newFps: string) => {
@@ -107,7 +104,7 @@ function CameraSection({
           <button
             id="btn-toggle"
             className={`capture-btn ${isRunning ? 'scanning' : ''}`}
-            onClick={onToggleCamera}
+            onClick={() => onToggleCamera?.(cameraType)}
             disabled={buttonDisabled}
             aria-label={buttonText}
             style={{ opacity: buttonDisabled ? 0.6 : 1 }}
